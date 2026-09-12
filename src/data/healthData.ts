@@ -109,3 +109,60 @@ export const initialScreening = {
   medication: "Vitamin D",
   allergies: "None",
 };
+
+export const loginDefaults = {
+  email: "alex.morgan@email.com",
+  password: "••••••••",
+  nextReview: "Tue · 10:30 AM",
+};
+
+export const bookingData = {
+  paymentMethods: ["Card ending 9842", "HSA account", "Insurance"],
+};
+
+export const screeningOptions = {
+  gender: ["Female", "Male", "Non-binary"],
+  smoking: ["No", "Occasionally", "Daily"],
+  alcohol: ["Occasionally", "Never", "Weekly"],
+  exercise: ["3x per week", "1x per week", "Daily"],
+  diet: ["Balanced", "Low sodium", "High sugar"],
+  yesNo: ["Yes", "No"],
+};
+
+export const screeningChecks = {
+  medical: [
+    ["diabetes", "Diabetes"],
+    ["hypertension", "Hypertension"],
+    ["heartDisease", "Heart disease"],
+    ["kidneyDisease", "Kidney disease"],
+    ["asthma", "Asthma"],
+    ["cancer", "Cancer"],
+    ["surgery", "Surgery history"],
+  ],
+  symptoms: [
+    ["fever", "Fever"],
+    ["headache", "Headache"],
+    ["cough", "Cough"],
+    ["chestPain", "Chest pain"],
+    ["shortnessOfBreath", "Shortness of breath"],
+    ["dizziness", "Dizziness"],
+  ],
+} as const;
+
+export const summaryData = {
+  aiSummary: [
+    "Blood pressure trending below concern threshold.",
+    "Exercise and hydration patterns are consistent.",
+    "Follow-up with your doctor recommended in 2 weeks.",
+  ],
+  doctorPacket: [
+    "Latest screening questionnaire attached.",
+    "Measurement timeline included.",
+    "Medication and allergy profile reviewed.",
+  ],
+  recommendations: [
+    "Continue current medication plan with weekly hydration tracking.",
+    "Maintain exercise routine and add one extra walk each week.",
+    "Bring blood pressure readings to the next consultation.",
+  ],
+};

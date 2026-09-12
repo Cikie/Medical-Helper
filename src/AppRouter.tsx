@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { ReactNode } from "react";
 import {
     BrowserRouter,
@@ -6,6 +5,7 @@ import {
     Route,
     Routes,
 } from "react-router-dom";
+import { useEffect } from "react";
 import {
     AdminPage,
     BookingPage,
@@ -17,9 +17,18 @@ import {
     SummaryPage,
 } from "./pages";
 import { AppLayout } from "./shared/components";
+import { useAppSelector } from "./store/hooks";
+import { useAppDispatch } from "./store/hooks";
+import { signIn } from "./store/authSlice";
+import { fetchAppData } from "./store/appDataSlice";
 
 export function AppRouter() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+    const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        void dispatch(fetchAppData());
+    }, [dispatch]);
 
     return (
         <BrowserRouter>
@@ -32,7 +41,7 @@ export function AppRouter() {
                 />
                 <Route
                     path="/login"
-                    element={<LoginPage onLogin={() => setIsAuthenticated(true)} />}
+                    element={<LoginPage onLogin={() => dispatch(signIn())} />}
                 />
                 <Route
                     path="/dashboard"

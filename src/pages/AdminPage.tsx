@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { adminStats } from "../data/healthData";
 import { useTranslation } from "react-i18next";
+import { useAppSelector } from "../store/hooks";
 
 type ChartMetric = "appointments" | "completion" | "risk";
 type ChartRange = "week" | "month";
@@ -27,9 +28,15 @@ const chartLabels: Record<ChartRange, string[]> = {
 
 export function AdminPage() {
   const { t } = useTranslation();
+  const { posts, todos, status } = useAppSelector((state) => state.appData);
   const [metric, setMetric] = useState<ChartMetric>("appointments");
   const [range, setRange] = useState<ChartRange>("week");
-  const values = chartData[metric][range];
+  const apiFactor = posts.length ? Math.min(posts.length, 100) : 1;
+  const values = chartData[metric][range].map((value, index) =>
+    metric === "completion" && todos.length
+      ? Math.min(100, value + (todos[index % todos.length].completed ? 4 : 0))
+      : Math.min(100, value + (status === "succeeded" ? apiFactor % 7 : 0)),
+  );
   const labels = chartLabels[range];
 
   const metricTitle =
