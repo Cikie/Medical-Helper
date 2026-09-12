@@ -1868,10 +1868,86 @@ h1,
   padding-top: 12px;
 }
 
-.bar-chart span {
+.chart-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.chart-header h3 {
+  margin-bottom: 0;
+}
+
+.chart-header .eyebrow {
+  margin-bottom: 5px;
+}
+
+.chart-controls {
+  display: flex;
+  gap: 7px;
+}
+
+.chart-controls select {
+  padding: 7px 8px;
+  color: #c6d9dc;
+  background: rgba(16, 24, 32, 0.64);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.chart-column {
   flex: 1;
-  background: linear-gradient(180deg, #69a7ff, #0f6efb);
-  border-radius: 10px 10px 0 0;
+  display: flex;
+  min-width: 0;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.chart-column strong {
+  color: #bde2df;
+  font-size: 9px;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: 0.2s ease;
+}
+
+.chart-column:hover strong {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.chart-bar-fill {
+  display: block;
+  width: 100%;
+  min-height: 8px;
+  background: linear-gradient(180deg, #8bd6cb, #4d9fb5);
+  border-radius: 8px 8px 3px 3px;
+  box-shadow: 0 6px 14px rgba(77, 159, 181, 0.18);
+  animation: chart-bar-in 0.45s ease both;
+  transform-origin: bottom;
+}
+
+.chart-column small {
+  color: #829da5;
+  font-size: 9px;
+}
+
+@keyframes chart-bar-in {
+  from {
+    opacity: 0;
+    transform: scaleY(0.15);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
 }
 
 .risk-list {
