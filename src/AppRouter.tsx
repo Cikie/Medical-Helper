@@ -16,7 +16,7 @@ import {
     ScreeningPage,
     SummaryPage,
 } from "./pages";
-import { AppLayout } from "./shared/components";
+import { AppLayout } from "./shared";
 import { useAppSelector } from "./store/hooks";
 import { useAppDispatch } from "./store/hooks";
 import { signIn } from "./store/authSlice";

@@ -1,14 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { summaryData } from "../data/healthData";
 import { useAppSelector } from "../store/hooks";
 
 export function SummaryPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { posts, comments } = useAppSelector((state) => state.appData);
-  const aiSummary = posts.length ? posts.slice(0, 3).map((post) => post.title) : summaryData.aiSummary;
-  const doctorPacket = comments.length ? comments.slice(0, 3).map((comment) => comment.body) : summaryData.doctorPacket;
+  const aiSummary = posts.slice(0, 3).map((post) => post.title);
+  const doctorPacket = comments.slice(0, 3).map((comment) => comment.body);
+  const recommendations = comments.slice(3, 6).map((comment) => comment.body);
 
   return (
     <div className="page-content summary-page">
@@ -32,18 +32,30 @@ export function SummaryPage() {
 
         <div className="summary-card">
           <p className="eyebrow">AI summary</p>
-          <ul>{aiSummary.map((item) => <li key={item}>{item}</li>)}</ul>
+          <ul>
+            {aiSummary.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
         </div>
 
         <div className="summary-card">
           <p className="eyebrow">Doctor packet</p>
-          <ul>{doctorPacket.map((item) => <li key={item}>{item}</li>)}</ul>
+          <ul>
+            {doctorPacket.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
         </div>
       </div>
 
       <div className="report-box">
         <h3>{t("clinicalRecommendations")}</h3>
-        <ul>{summaryData.recommendations.map((item) => <li key={item}>{item}</li>)}</ul>
+        <ul>
+          {recommendations.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
       </div>
 
       <div className="screening-actions">

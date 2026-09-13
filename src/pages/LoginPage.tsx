@@ -2,7 +2,7 @@ import type { FormEvent } from "react";
 import { HeartPulse } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { LanguageSwitcher } from "../shared/components/LanguageSwitcher";
+import { LanguageSwitcher } from "../shared/LanguageSwitcher";
 
 export function LoginPage({ onLogin }: { onLogin: () => void }) {
   const navigate = useNavigate();

@@ -1,44 +1,56 @@
-import { useState } from "react";
-import { adminStats } from "../data/healthData";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "../store/hooks";
 
 type ChartMetric = "appointments" | "completion" | "risk";
 type ChartRange = "week" | "month";
 
-const chartData: Record<ChartMetric, Record<ChartRange, number[]>> = {
-  appointments: {
-    week: [42, 58, 66, 70, 78, 90, 88],
-    month: [38, 48, 57, 64, 72, 81, 88, 94, 86, 91, 96, 100],
-  },
-  completion: {
-    week: [54, 61, 66, 70, 73, 79, 81],
-    month: [48, 52, 57, 59, 63, 66, 68, 71, 74, 77, 79, 81],
-  },
-  risk: {
-    week: [24, 31, 28, 42, 36, 49, 44],
-    month: [22, 28, 25, 34, 31, 39, 36, 45, 41, 48, 44, 52],
-  },
-};
-
-const chartLabels: Record<ChartRange, string[]> = {
-  week: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-  month: ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12"],
-};
+function createChartValues(values: number[], count: number) {
+  if (!values.length) return [];
+  return Array.from(
+    { length: count },
+    (_, index) => values[index % values.length],
+  );
+}
 
 export function AdminPage() {
   const { t } = useTranslation();
-  const { posts, todos, status } = useAppSelector((state) => state.appData);
+  const { users, posts, todos, comments } = useAppSelector(
+    (state) => state.appData,
+  );
+
   const [metric, setMetric] = useState<ChartMetric>("appointments");
   const [range, setRange] = useState<ChartRange>("week");
-  const apiFactor = posts.length ? Math.min(posts.length, 100) : 1;
-  const values = chartData[metric][range].map((value, index) =>
-    metric === "completion" && todos.length
-      ? Math.min(100, value + (todos[index % todos.length].completed ? 4 : 0))
-      : Math.min(100, value + (status === "succeeded" ? apiFactor % 7 : 0)),
-  );
-  const labels = chartLabels[range];
+  const bucketCount = range === "week" ? 7 : 12;
 
+  const sourceValues = useMemo(() => {
+    if (metric === "appointments") return posts.map((post) => post.id);
+    if (metric === "completion")
+      return todos.map((todo) => (todo.completed ? 100 : 0));
+    return comments.map((comment) => comment.postId);
+  }, [comments, metric, posts, todos]);
+
+  const values = createChartValues(sourceValues, bucketCount);
+
+  const labels = Array.from({ length: bucketCount }, (_, index) =>
+    range === "week"
+      ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][index]
+      : `W${index + 1}`,
+  );
+
+  const completedTodos = todos.filter((todo) => todo.completed).length;
+
+  const lowRisk = todos.length
+    ? Math.round((completedTodos / todos.length) * 100)
+    : 0;
+
+  const mediumRisk = todos.length ? 100 - lowRisk : 0;
+  const stats = [
+    { label: t("appointmentsScheduled"), value: String(posts.length) },
+    { label: t("screeningCompletion"), value: `${lowRisk}%` },
+    { label: t("highRiskDetection"), value: String(comments.length) },
+    { label: t("doctorSatisfaction"), value: String(users.length) },
+  ];
   const metricTitle =
     metric === "appointments"
       ? t("appointmentTrend")
@@ -54,17 +66,14 @@ export function AdminPage() {
           <h1>{t("analyticsDashboard")}</h1>
         </div>
       </section>
-
       <div className="stats-grid">
-        {adminStats.map((stat) => (
+        {stats.map((stat) => (
           <div className="stat-card" key={stat.label}>
             <span>{stat.label}</span>
             <strong>{stat.value}</strong>
-            <em>{stat.delta}</em>
           </div>
         ))}
       </div>
-
       <div className="admin-layout">
         <div className="summary-card">
           <div className="chart-header">
@@ -76,7 +85,9 @@ export function AdminPage() {
               <select
                 aria-label="Chart metric"
                 value={metric}
-                onChange={(event) => setMetric(event.target.value as ChartMetric)}>
+                onChange={(event) =>
+                  setMetric(event.target.value as ChartMetric)
+                }>
                 <option value="appointments">{t("appointments")}</option>
                 <option value="completion">{t("screeningCompletion")}</option>
                 <option value="risk">{t("highRiskDetection")}</option>
@@ -84,20 +95,22 @@ export function AdminPage() {
               <select
                 aria-label="Chart range"
                 value={range}
-                onChange={(event) => setRange(event.target.value as ChartRange)}>
+                onChange={(event) =>
+                  setRange(event.target.value as ChartRange)
+                }>
                 <option value="week">7D</option>
                 <option value="month">12W</option>
               </select>
             </div>
           </div>
           <div className="bar-chart" aria-live="polite">
-            {values.map((height, index) => (
+            {values.map((value, index) => (
               <div className="chart-column" key={`${range}-${index}`}>
-                <strong>{height}</strong>
+                <strong>{value}</strong>
                 <span
                   className="chart-bar-fill"
-                  style={{ height: `${height}%` }}
-                  title={`${labels[index]}: ${height}`}
+                  style={{ height: `${Math.min(100, value)}%` }}
+                  title={`${labels[index]}: ${value}`}
                 />
                 <small>{labels[index]}</small>
               </div>
@@ -108,20 +121,12 @@ export function AdminPage() {
           <h3>{t("riskDistribution")}</h3>
           <ul className="risk-list">
             <li>
-              <span>Low</span>
-              <strong>52%</strong>
+              <span>{t("low")}</span>
+              <strong>{lowRisk}%</strong>
             </li>
             <li>
-              <span>Medium</span>
-              <strong>31%</strong>
-            </li>
-            <li>
-              <span>High</span>
-              <strong>12%</strong>
-            </li>
-            <li>
-              <span>Emergency</span>
-              <strong>5%</strong>
+              <span>{t("medium")}</span>
+              <strong>{mediumRisk}%</strong>
             </li>
           </ul>
         </div>
